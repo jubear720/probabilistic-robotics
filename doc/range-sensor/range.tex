@@ -1,0 +1,110 @@
+\documentclass[letterpaper,12pt]{article}
+
+\textwidth 6.5in
+\textheight 9in
+\evensidemargin 0in
+\oddsidemargin 0in
+\topmargin 0in
+\headheight 0in
+\headsep 0in
+
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{listings}
+\newlength{\normalbasewidth}
+\settowidth{\normalbasewidth}{\ttfamily m}
+\newlength{\smallbasewidth}
+\settowidth{\smallbasewidth}{\ttfamily\small m}
+\newlength{\footnotebasewidth}
+\settowidth{\footnotebasewidth}{\ttfamily\footnotesize m}
+\newlength{\scriptbasewidth}
+\settowidth{\scriptbasewidth}{\ttfamily\scriptsize m}
+\lstset{ %
+  basewidth=\normalbasewidth,
+  basicstyle=\ttfamily\lst@ifdisplaystyle\ttfamily\normalsize\fi,
+  commentstyle=\color{green},    % comment style
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+%  frame=single,	                   % adds a frame around the code
+  keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+  keywordstyle=\color{blue},       % keyword style
+  language=C,                 % the language of the code
+%  numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+%  numbersep=5pt,                   % how far the line-numbers are from the code
+%  numberstyle=\tiny, % the style that is used for the line-numbers
+  rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+%  stepnumber=1,                    % the step between two line-numbers. If it's 1, each line will be numbered
+  stringstyle=\color{mymauve},     % string literal style
+  tabsize=2	                   % sets default tabsize to 2 spaces
+}
+
+\newcommand{\tuple}[1]{\ensuremath{\left \langle #1 \right \rangle }}
+
+\title{Probabilistic Robotics}
+\author{Programming Assignment 1}
+
+\begin{document}
+\maketitle
+
+The goal of this assignment is to write a range sensor model.  The
+sensor model calculates $p(s|z,m)$ where $s$ is the robot state or
+pose expressed as the tuple $\tuple{x,y,\theta}$, $z$ is an
+observation derived from sensor data, and $m$ is an occupancy grid
+map.  In this case, $z$ is a range reading from a sensor which is
+mounted somewhere on the robot.  For localization to work properly, it
+is necessary to account for the position of the sensor with respect to
+the center of the robot, as well as the angle of the sensor beam with
+respect to the front of the robot.  The following figure shows the
+situation:
+
+\begin{center}
+  \input{rangesensor.pdf_t}
+  \end{center}
+
+In this figure, the large circle represents the robot and the
+smaller grey circle represents a generic distance sensor unit.
+$dx$ and $dy$ give the location of the sensor beam receiver
+in robot-centric coordinates, and $\alpha$ gives the angle of the
+beam with respect to the front of the robot.  An alpha value
+of zero means that the sensor beam projects directly ahead of
+the robot, while a value of ninety means that the beam is
+directed to the left, orthogonal to the front of the robot.
+
+You are to write a function to calculate $p(s|z,m)$, while
+taking all of this data into account.  The function
+prototype is:
+\begin{lstlisting}
+float sensormodel(MapStruct *map,
+                  int res,
+                  int row,int col,
+                  int theta,
+                  int dx, int dy,
+                  int a,int r);
+\end{lstlisting}
+where \lstinline{r} is the range reading along the sensor beam.  Note
+that $s$ is actually the tuple $\tuple{{\tt row},{\tt col},{\tt
+    theta}}$ and $z$ is the tuple $\tuple{{\tt dx},{\tt dy},{\tt
+    a},{\tt r}}$.  The map is a 2D array of unsigned 8-bit integers,
+and a number, {\tt res}, indicating the size of each cell. If {\tt res}
+is 100, then each cell in the map is 100 mm by 100 mm.
+A cell value of 0 indicates that a cell is occupied with probability 1,
+while a value of 255 indicates that the cell is occupied with
+probability 0.
+
+I have written a program to load everything and test your function.
+You just have to edit {\tt sensormodel.cc} and write the function.
+\lstinline{MapStruct} is defined in {\tt map.h}.  You may
+need to write some helper functions.  You will definitely
+need a function to simulate the sensor beam.  Its prototype will
+look something like this:
+\begin{lstlisting}
+int simulate_beam(MapStruct *map,int res,int x,int y,double angle);
+\end{lstlisting}
+where {\tt x} and {\tt y}  are the position
+of the sensor in map coordinates, and angle is the direction
+of the beam.  It should return a result in millimeters.
+
+
+\end{document}
